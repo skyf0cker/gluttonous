@@ -10,7 +10,9 @@ def kill(spr):
     spr.unschedule(spr.update)
     arena = spr.parent.parent
     if not spr.is_big:
-        arena.batch.add(Dot())
+        dot = Dot()
+        arena.batch.add(dot)
+        arena.dots.append(dot)
         spr.killer.add_score()
     else:
         spr.killer.add_score(2)

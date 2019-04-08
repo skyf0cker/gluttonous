@@ -13,7 +13,7 @@ class Arena(cocos.layer.ColorLayer):
         self.center = (director.get_window_size()[0] / 2, director.get_window_size()[1] / 2)
         self.batch = cocos.batch.BatchNode()
         self.add(self.batch)
-
+        self.dots=list()
         self.snake = Snake()
         self.add(self.snake, 10000)
         self.snake.init_body()
@@ -25,7 +25,10 @@ class Arena(cocos.layer.ColorLayer):
         self.keys_pressed = set()
 
         for i in range(50):
-            self.batch.add(Dot())
+            dot = Dot()
+            self.batch.add(dot)
+            self.dots.append(dot)
+
 
         self.schedule(self.update)
 
