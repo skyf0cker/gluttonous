@@ -12,6 +12,7 @@ class Arena(cocos.layer.ColorLayer):
         super(Arena, self).__init__(250, 255, 255, 255, define.WIDTH, define.HEIGHT)
         self.center = (director.get_window_size()[0] / 2, director.get_window_size()[1] / 2)
         self.batch = cocos.batch.BatchNode()
+        # self.visible = False
         self.add(self.batch)
         self.dots=list()
         self.snake = Snake()
@@ -19,12 +20,12 @@ class Arena(cocos.layer.ColorLayer):
         self.snake.init_body()
 
         self.enemies = []
-        for i in range(7):
+        for i in range(1):
             self.add_enemy()
 
         self.keys_pressed = set()
 
-        for i in range(50):
+        for i in range(1):
             dot = Dot()
             self.batch.add(dot)
             self.dots.append(dot)
