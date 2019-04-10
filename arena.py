@@ -20,12 +20,12 @@ class Arena(cocos.layer.ColorLayer):
         self.snake.init_body()
 
         self.enemies = []
-        for i in range(1):
+        for i in range(7):
             self.add_enemy()
 
         self.keys_pressed = set()
 
-        for i in range(1):
+        for i in range(20):
             dot = Dot()
             self.batch.add(dot)
             self.dots.append(dot)

@@ -11,9 +11,9 @@ from dot import Dot
 class Snake(cocos.cocosnode.CocosNode):
     def __init__(self, is_enemy=False):
         super(Snake, self).__init__()
-        self.threhold = 250
-        self.hunger = 50
-        self.alive = 0
+        self.threhold = 200
+        self.hunger = 500
+        self.alive = 1000
         self.is_dead = False
         self.angle = random.randrange(360)  # 目前角度
         self.angle_dest = self.angle  # 目标角度
@@ -44,9 +44,9 @@ class Snake(cocos.cocosnode.CocosNode):
 
         self.add(self.head)
 
-        self.speed = 100
+        self.speed = 150
         if not is_enemy:
-            self.speed = 120
+            self.speed = 180
         self.path = [self.position] * 100
 
         self.schedule(self.update)
@@ -68,12 +68,12 @@ class Snake(cocos.cocosnode.CocosNode):
     def my_ai(self, dt):
         self.angle_dest = (self.angle_dest + 360) % 360
         if (self.x < 100 and 90 < self.angle_dest < 270) or (
-                self.x > define.WIDTH - 100 and (
-                self.angle_dest < 90 or self.angle_dest > 270)
+                        self.x > define.WIDTH - 100 and (
+                                self.angle_dest < 90 or self.angle_dest > 270)
         ):
             self.angle_dest = 180 - self.angle_dest
         elif (self.y < 100 and self.angle_dest > 180) or (
-                self.y > define.HEIGHT - 100 and self.angle_dest < 180
+                        self.y > define.HEIGHT - 100 and self.angle_dest < 180
         ):
             self.angle_dest = -self.angle_dest
         else:
@@ -117,9 +117,15 @@ class Snake(cocos.cocosnode.CocosNode):
         em_x, em_y = em_pos
         aim_x, aim_y = aim_pos
         me_x, me_y = self.position
-        f1 = em_y - (k*(em_x-me_x)+me_y)
-        f2 = aim_y - (k*(aim_x-me_x)+me_y)
+        f1 = em_y - (k * (em_x - me_x) + me_y)
+        f2 = aim_y - (k * (aim_x - me_x) + me_y)
         return f1 * f2 < 0
+
+    def _judge_inrange(self, angle_round, theta):  # 判断是否在范围内
+        if angle_round[0] < 0:
+            return angle_round[0] + 180 <= theta + 180 < angle_round[1] + 180
+        else:
+            return angle_round[0] <= theta < angle_round[1]
 
     def select_direction(self, enemey):
         # print ('i wanna go')
@@ -152,38 +158,21 @@ class Snake(cocos.cocosnode.CocosNode):
                 theta = 0
             score = self.hunger
             if self._judge_oneside(k, enemey.position, dot.position):
-                print('dot')
-                # if math.tan(em_angle * math.pi / 180) > 0:
-                if _x < 0:
-                    if _y < 0:
-                        relative_angle = int(180 - angle_round[0] + theta)
-                        # print("left-up", int(180 - angle_round[0] - theta))
-                    else:
-                        relative_angle = int(180 - angle_round[0] - theta)
-                        # print ("left-down", int(180 - angle_round[0] + theta))
+                # print('dot')
+                if _x > 0 and _y > 0:
+                    aim_angle = theta
+                elif _x < 0 and _y > 0:
+                    aim_angle = 180 - theta
+                elif _x < 0 and _y < 0:
+                    aim_angle = theta - 180
                 else:
-                    if _y < 0:
-                        relative_angle = int(abs(angle_round[0]) - theta)
-                        # print("right-up", int(abs(angle_round[0]) + theta))
-                    else:
-                        relative_angle = int(abs(angle_round[0]) + theta)
-                        # print ("right-down", int(abs(angle_round[0]) + theta))
-                try:
-                    angle_list[relative_angle] += score
-                except:
-                    print (relative_angle)
-                    print (k,self.position,enemey.position,dot.position)
-                # else:
-                #     if _x < 0:
-                #         if _y < 0:
-                #             angle_list[int(180 - angle_round[0] - theta)] += score
-                #         else:
-                #             angle_list[int(180 - angle_round[0] + theta)] += score
-                #     else:
-                #         if _y < 0:
-                #             angle_list[int(theta - angle_round[0])] += score
-                #         else:
-                #             angle_list[int(-angle_round[0] - theta)] += score
+                    aim_angle = -theta
+                if self._judge_inrange(angle_round, aim_angle):
+                    relative_angle = int(aim_angle - angle_round[0])
+                    try:
+                        angle_list[relative_angle] += score
+                    except:
+                        print(k, self.position, enemey.position, dot.position, relative_angle, aim_angle, angle_round)
 
         for em in arena.enemies:
             for bd in em.body:
@@ -202,42 +191,27 @@ class Snake(cocos.cocosnode.CocosNode):
                 except:
                     continue
                 if self._judge_oneside(k, enemey.position, bd.position):
-                    # if math.tan(em_angle * math.pi / 180) > 0:
-                    if _x < 0:
-                        if _y < 0:
-                            relative_angle = int(180 - angle_round[0] + theta)
-                            # print("left-up", int(180 - angle_round[0] - theta))
-                        else:
-                            relative_angle = int(180 - angle_round[0] - theta)
-                            # print ("left-down", int(180 - angle_round[0] + theta))
+                    if _x > 0 and _y > 0:
+                        aim_angle = theta
+                    elif _x < 0 and _y > 0:
+                        aim_angle = 180 - theta
+                    elif _x < 0 and _y < 0:
+                        aim_angle = theta - 180
                     else:
-                        if _y < 0:
-                            relative_angle = int(abs(angle_round[0]) - theta)
-                            # print("right-up", int(abs(angle_round[0]) + theta))
-                        else:
-                            relative_angle = int(abs(angle_round[0]) + theta)
-                            # print ("right-down", int(abs(angle_round[0]) + theta))
-                    try:
-                        angle_list[relative_angle] -= score
-                    except:
-                        print (relative_angle)
-                # else:
-                #     if _x < 0:
-                #         if _y < 0:
-                #             angle_list[int(180 - angle_round[0] - theta)] -= score
-                #         else:
-                #             angle_list[int(180 - angle_round[0] + theta)] -= score
-                #     else:
-                #         if _y < 0:
-                #             angle_list[int(theta - angle_round[0])] -= score
-                #         else:
-                #             angle_list[int(-angle_round[0] - theta)] -= score
+                        aim_angle = -theta
+                    if self._judge_inrange(angle_round, aim_angle):
+                        relative_angle = int(aim_angle - angle_round[0])
+                        try:
+                            angle_list[relative_angle] -= score
+                        except:
+                            print(k, self.position, enemey.position, bd.position, relative_angle, aim_angle,
+                                  angle_round)
 
         score_array = np.array(angle_list, dtype=float)
         min_score = np.min(score_array)
         # print (score_array)
         score_array = score_array + abs(min_score)
-        #print (score_array)
+        # print (score_array)
         score_sum = np.sum(score_array)
         p_array = score_array / score_sum
         try:
@@ -274,7 +248,7 @@ class Snake(cocos.cocosnode.CocosNode):
             self.angle = self.angle_dest
         else:
             if (0 < self.angle - self.angle_dest < 180) or (
-                    self.angle - self.angle_dest < -180):
+                            self.angle - self.angle_dest < -180):
                 self.angle -= 500 * dt
             else:
                 self.angle += 500 * dt
@@ -324,12 +298,12 @@ class Snake(cocos.cocosnode.CocosNode):
 
         self.angle_dest = (self.angle_dest + 360) % 360
         if (self.x < 100 and 90 < self.angle_dest < 270) or (
-                self.x > define.WIDTH - 100 and (
-                self.angle_dest < 90 or self.angle_dest > 270)
+                        self.x > define.WIDTH - 100 and (
+                                self.angle_dest < 90 or self.angle_dest > 270)
         ):
             self.angle_dest = 180 - self.angle_dest
         elif (self.y < 100 and self.angle_dest > 180) or (
-                self.y > define.HEIGHT - 100 and self.angle_dest < 180
+                        self.y > define.HEIGHT - 100 and self.angle_dest < 180
         ):
             self.angle_dest = -self.angle_dest
         else:
@@ -364,7 +338,7 @@ class Snake(cocos.cocosnode.CocosNode):
         if self.is_dead or other.is_dead:
             return
         if (self.x < 0 or self.x > define.WIDTH) or (
-                self.y < 0 or self.y > define.HEIGHT
+                        self.y < 0 or self.y > define.HEIGHT
         ):
             self.crash()
             return
