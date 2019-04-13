@@ -9,6 +9,7 @@ from dot import Dot
 
 
 class Snake(cocos.cocosnode.CocosNode):
+
     def __init__(self, is_enemy=False):
         super(Snake, self).__init__()
         self.threhold = 200
@@ -56,6 +57,7 @@ class Snake(cocos.cocosnode.CocosNode):
             self.schedule(self.ai)  # random.random() * 0.1 + 0.05
 
     def add_body(self):
+
         b = Sprite('circle.png', color=self.color)
         b.scale = 1.5
         self.body.append(b)
@@ -66,6 +68,7 @@ class Snake(cocos.cocosnode.CocosNode):
         self.parent.batch.add(b, 9999 - len(self.body))
 
     def my_ai(self, dt):
+
         self.angle_dest = (self.angle_dest + 360) % 360
         if (self.x < 100 and 90 < self.angle_dest < 270) or (
                         self.x > define.WIDTH - 100 and (
@@ -89,6 +92,7 @@ class Snake(cocos.cocosnode.CocosNode):
         return math.tan(em_angle) * m_x + (em_y * math.tan(em_angle) * em_x) - m_y > 0
 
     def _get_nearest_em(self):
+
         arena = self.parent
         m_x, m_y = self.position
 
@@ -114,6 +118,7 @@ class Snake(cocos.cocosnode.CocosNode):
             return Min_em
 
     def _judge_oneside(self, k, em_pos, aim_pos):
+
         em_x, em_y = em_pos
         aim_x, aim_y = aim_pos
         me_x, me_y = self.position
@@ -122,13 +127,14 @@ class Snake(cocos.cocosnode.CocosNode):
         return f1 * f2 < 0
 
     def _judge_inrange(self, angle_round, theta):  # 判断是否在范围内
+
         if angle_round[0] < 0:
             return angle_round[0] + 360 <= theta + 360 < angle_round[1] + 360
         else:
             return angle_round[0] <= theta < angle_round[1]
 
     def select_direction(self, enemey):
-        # print ('i wanna go')
+
         m_x, m_y = self.position
         em_angle = enemey.angle
         if self._judge_pos(enemey):
@@ -249,6 +255,7 @@ class Snake(cocos.cocosnode.CocosNode):
         return (angle_round[0] + angle + 360) % 360
 
     def init_body(self):
+
         self.score = 30
         self.length = 4
         self.body = []
