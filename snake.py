@@ -12,8 +12,8 @@ class Snake(cocos.cocosnode.CocosNode):
     def __init__(self, is_enemy=False):
         super(Snake, self).__init__()
         self.threhold = 200
-        self.hunger = 500
-        self.alive = 1000
+        self.hunger = 100
+        self.alive = 10000
         self.is_dead = False
         self.angle = random.randrange(360)  # 目前角度
         self.angle_dest = self.angle  # 目标角度
@@ -44,9 +44,9 @@ class Snake(cocos.cocosnode.CocosNode):
 
         self.add(self.head)
 
-        self.speed = 150
+        self.speed = 140
         if not is_enemy:
-            self.speed = 180
+            self.speed = 150
         self.path = [self.position] * 100
 
         self.schedule(self.update)
@@ -106,8 +106,8 @@ class Snake(cocos.cocosnode.CocosNode):
                     Min_body = bd
                     Min_em = em
         # print(Min)
-        for bd in Min_em.body:
-            bd.color = define.BLACK
+        # for bd in Min_em.body:
+        #     bd.color = define.BLACK
         if Min > self.threhold:
             return None
         else:
@@ -123,7 +123,7 @@ class Snake(cocos.cocosnode.CocosNode):
 
     def _judge_inrange(self, angle_round, theta):  # 判断是否在范围内
         if angle_round[0] < 0:
-            return angle_round[0] + 180 <= theta + 180 < angle_round[1] + 180
+            return angle_round[0] + 360 <= theta + 360 < angle_round[1] + 360
         else:
             return angle_round[0] <= theta < angle_round[1]
 
@@ -157,23 +157,26 @@ class Snake(cocos.cocosnode.CocosNode):
             else:
                 theta = 0
             score = self.hunger
-            if self._judge_oneside(k, enemey.position, dot.position):
+            # count1 = count2 = count3 = 0
+            # if self._judge_oneside(k, enemey.position, dot.position):
                 # print('dot')
-                if _x > 0 and _y > 0:
-                    aim_angle = theta
-                elif _x < 0 and _y > 0:
-                    aim_angle = 180 - theta
-                elif _x < 0 and _y < 0:
-                    aim_angle = theta - 180
-                else:
-                    aim_angle = -theta
-                if self._judge_inrange(angle_round, aim_angle):
-                    relative_angle = int(aim_angle - angle_round[0])
-                    try:
-                        angle_list[relative_angle] += score
-                    except:
-                        print(k, self.position, enemey.position, dot.position, relative_angle, aim_angle, angle_round)
-
+            if _x > 0 and _y > 0:
+                aim_angle = theta
+            elif _x < 0 and _y > 0:
+                aim_angle = 180 - theta
+            elif _x < 0 and _y < 0:
+                aim_angle = theta - 180
+            else:
+                aim_angle = -theta
+            # count1 += 1
+            if self._judge_inrange(angle_round, aim_angle):
+                # count2 += 1
+                relative_angle = int(aim_angle - angle_round[0])
+                try:
+                    # count3 += 1
+                    angle_list[relative_angle] += score
+                except:
+                    print(k, self.position, enemey.position, dot.position, relative_angle, aim_angle, angle_round)
         for em in arena.enemies:
             for bd in em.body:
                 d_x, d_y = bd.position
@@ -190,37 +193,59 @@ class Snake(cocos.cocosnode.CocosNode):
                     score = self.alive
                 except:
                     continue
-                if self._judge_oneside(k, enemey.position, bd.position):
-                    if _x > 0 and _y > 0:
-                        aim_angle = theta
-                    elif _x < 0 and _y > 0:
-                        aim_angle = 180 - theta
-                    elif _x < 0 and _y < 0:
-                        aim_angle = theta - 180
-                    else:
-                        aim_angle = -theta
-                    if self._judge_inrange(angle_round, aim_angle):
-                        relative_angle = int(aim_angle - angle_round[0])
-                        try:
-                            angle_list[relative_angle] -= score
-                        except:
-                            print(k, self.position, enemey.position, bd.position, relative_angle, aim_angle,
-                                  angle_round)
+                # if self._judge_oneside(k, enemey.position, bd.position):
+                if _x > 0 and _y > 0:
+                    aim_angle = theta
+                elif _x < 0 and _y > 0:
+                    aim_angle = 180 - theta
+                elif _x < 0 and _y < 0:
+                    aim_angle = theta - 180
+                else:
+                    aim_angle = -theta
+                count1 = count2 = 0
+                if self._judge_inrange(angle_round, aim_angle):
+                    relative_angle = int(aim_angle - angle_round[0])
+                    # print(relative_angle)
+                    # print(score)
+                    # count1 += 1
+                    try:
+                        angle_list[relative_angle] -= score
+                        # count2 += 1
+                    except:
+                        print(k, self.position, enemey.position, bd.position, relative_angle, aim_angle,
+                              angle_round)
+                        # if count1!=count2:
+                        #     print(count1,count2)
+                else:
+                    # print(aim_angle, angle_round)
+                    pass
 
+        # print(angle_list)
         score_array = np.array(angle_list, dtype=float)
         min_score = np.min(score_array)
         # print (score_array)
         score_array = score_array + abs(min_score)
         # print (score_array)
-        score_sum = np.sum(score_array)
-        p_array = score_array / score_sum
+        # score_sum = np.sum(score_array)
+        # p_array = score_array / score_sum
+        # print(score_sum)
+        # print(p_array*100)
+        # print(np.sum(p_array))
         try:
-            angle = np.random.choice(a=180, p=p_array)
+            angle = np.argmax(score_array)
+            # arg_array = np.argsort(score_array)
+            # arg_array = arg_array[:5]
+            # score_array = score_array[arg_array]
+            # score_sum = np.sum(score_array)
+            # p_array = score_array / score_sum
+            # angle = np.random.choice(a=arg_array, p=p_array)
+            # print(score_array,arg_array,p_array)
+            # angle = np.random.choice(a=180, p=p_array)
         except:
             print(score_array)
-            print(score_sum)
-            print(p_array)
-        # print angle
+            # print(score_sum)
+            # print(p_array)
+        # print (angle)
         return (angle_round[0] + angle + 360) % 360
 
     def init_body(self):
