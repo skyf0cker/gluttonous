@@ -32,3 +32,9 @@ THREHOLD_SIZE = 10
 HUNGER_SIZE = 5
 ALIVE_SIZE = 5
 DNA_SIZE = THREHOLD_SIZE + HUNGER_SIZE + ALIVE_SIZE
+
+DEAD_NUM = POP_SIZE = 40           # population size
+CROSS_RATE = 0.8         # mating probability (DNA crossover)
+MUTATION_RATE = 0.003    # mutation probability
+N_GENERATIONS = 200
+

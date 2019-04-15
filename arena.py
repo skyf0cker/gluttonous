@@ -9,8 +9,9 @@ class Arena(cocos.layer.ColorLayer):
     is_event_handler = True
 
     def __init__(self):
-        super(Arena, self).__init__(250, 255, 255, 255, define.WIDTH, define.HEIGHT)
+        super(Arena, self).__init__(250, 255, 255, 255, define.WIDTH, define.HEIGHT)#250, 255, 255, 255
         self.center = (director.get_window_size()[0] / 2, director.get_window_size()[1] / 2)
+        self.center = (0, 0)
         self.batch = cocos.batch.BatchNode()
         # self.visible = False
         self.add(self.batch)
@@ -20,6 +21,9 @@ class Arena(cocos.layer.ColorLayer):
         self.snake.init_body()
 
         self.enemies = []
+
+        self.enemies.append(self.snake)
+
         for i in range(7):
             self.add_enemy()
 
@@ -40,8 +44,8 @@ class Arena(cocos.layer.ColorLayer):
         self.enemies.append(enemy)
 
     def update(self, dt):
-        self.x = self.center[0] - self.snake.x
-        self.y = self.center[1] - self.snake.y
+        self.x = self.center[0]# - self.snake.x
+        self.y = self.center[1]# - self.snake.y
 
     def on_key_press(self, key, modifiers):
         self.keys_pressed.add(key)

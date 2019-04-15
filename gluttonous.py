@@ -39,6 +39,6 @@ class HelloWorld(cocos.layer.Layer):
 
 
 Director = cocos.director.director
-Director.init(caption="Gluttonous Python")
+Director.init(width=1600, height=800, caption="Gluttonous Python")
 Director.run(cocos.scene.Scene(HelloWorld()))
-
+print("shi")
