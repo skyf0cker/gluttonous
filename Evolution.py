@@ -1,3 +1,4 @@
+# coding=utf-8
 import numpy as np
 import define
 
@@ -20,21 +21,29 @@ def translateDNA(DNAS):
 def select(snakes, fitness):
     print(len(snakes),len(fitness))
     idx = np.random.choice(np.arange(len(snakes)),size= len(snakes), p=fitness/fitness.sum())
-    print(snakes)
-    return snakes[idx]
+    # print(snakes)
+    return np.array(snakes)[idx]
 
 def crossover(parent, snakes):     # mating process (genes crossover)
     if np.random.rand() < define.CROSS_RATE:
-        i_ = np.random.randint(0, define.POP_SIZE, size=1)                             # select another individual from pop
-        cross_points = np.random.randint(0, 2, size=define.DNA_SIZE).astype(np.bool)   # choose crossover points
-        parent[cross_points] = snakes[i_,cross_points]                            # mating and produce one child
+        i = np.random.randint(0, define.POP_SIZE)  # select another individual from pop
+        cross_point = np.random.randint(0, define.DNA_SIZE - 1)  # 随机产生一个交叉点
+        print ("cross_point", cross_point)
+        temporary1 = []
+        temporary2 = []
+        temporary1.extend(snakes[i][0:cross_point])
+        temporary1.extend(parent[cross_point:len(snakes[i])])
+
+        temporary2.extend(parent[0:cross_point])
+        temporary2.extend(snakes[i][cross_point:len(snakes[i])])
+        parent = temporary2
 
     return parent
 
 def mutate(child):
     for point in range(define.DNA_SIZE):
         if np.random.rand() < define.MUTATION_RATE:
-            child[point] = 1 if child[point] == 0 else 0
+            child[point] = '1' if child[point] == '0' else '0'
     return child
 
 if __name__ == '__main__':

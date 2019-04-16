@@ -7,21 +7,21 @@ import numpy as np
 import time
 import define
 from dot import Dot
-import __future__
 from Evolution import translateDNA, mutate, crossover, select, get_fitness
 
-class Snake(cocos.cocosnode.CocosNode):
 
+class Snake(cocos.cocosnode.CocosNode):
     gene_list = []
     curr_gens = []
     snake_num = 0
     dead_num = 0
-    times = define.POP_SIZE*[0]
-    scores = define.POP_SIZE*[0]
+    times = define.POP_SIZE * [0]
+    scores = define.POP_SIZE * [0]
+
     def __init__(self, is_enemy=False):
         super(Snake, self).__init__()
         Snake.snake_num += 1
-        self.birth=time.time()
+        self.birth = time.time()
         self.is_dead = False
         self.angle = random.randrange(360)  # 目前角度
         self.angle_dest = self.angle  # 目标角度
@@ -30,8 +30,8 @@ class Snake(cocos.cocosnode.CocosNode):
             self.position = random.randrange(300, 1300), random.randrange(200, 600)
             if 600 < self.x < 1000:
                 self.x += 400
-       # else:
-       #     self.position = random.randrange(700, 900), random.randrange(350, 450)
+                # else:
+                #     self.position = random.randrange(700, 900), random.randrange(350, 450)
         self.is_enemy = True
         self.head = Sprite('circle.png', color=self.color)
         self.scale = 1.5
@@ -53,36 +53,46 @@ class Snake(cocos.cocosnode.CocosNode):
 
         self.add(self.head)
 
-        self.speed = 140
-        if not is_enemy:
-            self.speed = 150
+        self.speed = 220
         self.path = [self.position] * 100
 
         # with open("generation"+str(current_gen)+".ini", 'r') as r:
         #     data = r.read()
-        current_gen = Snake.snake_num/define.POP_SIZE
-        print(current_gen)
-        print(len(Snake.gene_list))
+        current_gen = Snake.snake_num / define.POP_SIZE
+        if Snake.snake_num - 9 >= 0:
+            current_gen = (Snake.snake_num - 9) / define.POP_SIZE
+        print ("snakenum", Snake.snake_num)
+        print("currentgen", current_gen)
+        print("genelist len", len(Snake.gene_list))
         if len(Snake.gene_list) == 0:
-            print(Snake.gene_list)
-            with open("generation"+str(current_gen) + ".ini", "r") as r:
+            print("genelist", Snake.gene_list)
+            with open("generation" + str(current_gen) + ".ini", "r") as r:
                 data = r.read()
             Snake.gene_list = (data.split("\n"))
-            if(current_gen==0):
-                Snake.curr_gens = Snake.gene_list[8:]
+            if current_gen == 0:
+                Snake.curr_gens = Snake.gene_list[7:]
             else:
                 Snake.curr_gens = Snake.gene_list[:]
-            # print(Snake.gene_list)
+            print("currgens", Snake.curr_gens)
+            print("currgens len", len(Snake.curr_gens))
         self.threhold, self.hunger, self.alive = translateDNA([Snake.gene_list.pop()])
 
-        if Snake.dead_num != 0 and Snake.dead_num%define.DEAD_NUM == 0:
-            fitness = get_fitness(Snake.scores,Snake.times)
-            pop = select(Snake.curr_gens,fitness)
+        if Snake.dead_num != 0 and Snake.dead_num % define.DEAD_NUM == 0:
+            fitness = get_fitness(Snake.scores, Snake.times)
+            pop = select(Snake.curr_gens, fitness)
             pop_copy = pop[:]
-            print(pop)
+            # print("pop", pop)
+            # print("pop copy", pop_copy)
+            # print("pop copy", pop_copy.ndim)
             for parent in pop:
-                child = crossover(parent,pop_copy)
+                child = crossover(parent, pop_copy)
                 child = mutate(child)
+                with open("generation" + str(current_gen + 1) + ".ini", 'a') as w:
+                    temp = [str(i) for i in child]
+                    if parent.index(parent) != define.POP_SIZE:
+                        w.write(''.join(temp) + "\n")
+                    else:
+                        w.write(''.join(temp))
 
         self.schedule(self.update)
         if not self.is_enemy:
@@ -196,10 +206,10 @@ class Snake(cocos.cocosnode.CocosNode):
                 theta = math.atan(abs(_y) / abs(_x)) * 180 / math.pi
             else:
                 theta = 0
-            score = self.hunger/distance
+            score = self.hunger / distance
             # count1 = count2 = count3 = 0
             # if self._judge_oneside(k, enemey.position, dot.position):
-                # print('dot')
+            # print('dot')
             if _x > 0 and _y > 0:
                 aim_angle = theta
             elif _x < 0 and _y > 0:
@@ -230,7 +240,7 @@ class Snake(cocos.cocosnode.CocosNode):
                 else:
                     theta = 0
                 try:
-                    score = self.alive/distance
+                    score = self.alive / distance
                 except:
                     continue
                 # if self._judge_oneside(k, enemey.position, bd.position):
@@ -416,11 +426,11 @@ class Snake(cocos.cocosnode.CocosNode):
 
     def crash(self):
         if not self.is_dead:
-            life_time = time.time()-self.birth
+            life_time = time.time() - self.birth
             # print(Snake.dead_num%define.DEAD_NUM)
-            Snake.times[Snake.dead_num%define.DEAD_NUM]=life_time
-            Snake.scores[Snake.dead_num%define.DEAD_NUM]=self.score
-            Snake.dead_num+=1
+            Snake.times[Snake.dead_num % define.DEAD_NUM] = life_time
+            Snake.scores[Snake.dead_num % define.DEAD_NUM] = self.score
+            Snake.dead_num += 1
             self.is_dead = True
             self.unschedule(self.update)
             self.unschedule(self.ai)
@@ -440,5 +450,5 @@ class Snake(cocos.cocosnode.CocosNode):
             del self.body
             del self
             # else:
-                # arena.parent.end_game()
-                # pass
+            # arena.parent.end_game()
+            # pass
