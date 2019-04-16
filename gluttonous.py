@@ -9,6 +9,7 @@ class HelloWorld(cocos.layer.Layer):
 
     def __init__(self):
         super(HelloWorld, self).__init__()
+        # self.visible=False
         self.arena = Arena()
         self.add(self.arena)
         self.score = cocos.text.Label('30',

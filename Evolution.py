@@ -2,9 +2,8 @@
 import numpy as np
 import define
 
-def get_fitness(scores, times):  
-
-    return 3 * np.array(scores) / np.array(times)
+def get_fitness(scores, times):
+    return 3 * np.array(scores) + np.array(times)
 
 def translateDNA(DNAS):
     print(DNAS)
@@ -43,7 +42,8 @@ def crossover(parent, snakes):     # mating process (genes crossover)
 def mutate(child):
     for point in range(define.DNA_SIZE):
         if np.random.rand() < define.MUTATION_RATE:
-            child[point] = '1' if child[point] == '0' else '0'
+            child[point].replace('0', '1')
+            child[point].replace('1', '0')
     return child
 
 if __name__ == '__main__':

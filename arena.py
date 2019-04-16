@@ -29,7 +29,7 @@ class Arena(cocos.layer.ColorLayer):
 
         self.keys_pressed = set()
 
-        for i in range(20):
+        for i in range(80):
             dot = Dot()
             self.batch.add(dot)
             self.dots.append(dot)

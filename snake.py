@@ -53,7 +53,7 @@ class Snake(cocos.cocosnode.CocosNode):
 
         self.add(self.head)
 
-        self.speed = 220
+        self.speed = 140
         self.path = [self.position] * 100
 
         # with open("generation"+str(current_gen)+".ini", 'r') as r:
@@ -84,21 +84,17 @@ class Snake(cocos.cocosnode.CocosNode):
             # print("pop", pop)
             # print("pop copy", pop_copy)
             # print("pop copy", pop_copy.ndim)
+            data = []
             for parent in pop:
                 child = crossover(parent, pop_copy)
                 child = mutate(child)
-                with open("generation" + str(current_gen + 1) + ".ini", 'a') as w:
-                    temp = [str(i) for i in child]
-                    if parent.index(parent) != define.POP_SIZE:
-                        w.write(''.join(temp) + "\n")
-                    else:
-                        w.write(''.join(temp))
+                temp = [str(i) for i in child]
+                data.append(''.join(temp))
+            with open("generation" + str(current_gen + 1) + ".ini", 'a') as w:
+                w.write('\n'.join(data))
 
         self.schedule(self.update)
-        if not self.is_enemy:
-            self.schedule(self.my_ai)  # random.random() * 0.1 + 0.05
-        else:
-            self.schedule(self.my_ai)  # random.random() * 0.1 + 0.05
+        self.schedule(self.my_ai)  # random.random() * 0.1 + 0.05
 
     def add_body(self):
 
@@ -114,18 +110,19 @@ class Snake(cocos.cocosnode.CocosNode):
     def my_ai(self, dt):
 
         self.angle_dest = (self.angle_dest + 360) % 360
-        if (self.x < 100 and 90 < self.angle_dest < 270) or (
-                        self.x > define.WIDTH - 100 and (
-                                self.angle_dest < 90 or self.angle_dest > 270)
-        ):
-            self.angle_dest = 180 - self.angle_dest
-        elif (self.y < 100 and self.angle_dest > 180) or (
-                        self.y > define.HEIGHT - 100 and self.angle_dest < 180
-        ):
-            self.angle_dest = -self.angle_dest
+        if self.x < 250 and 90 < self.angle_dest < 270:
+            self.angle_dest = random.randrange(-90, 90)
+        elif self.x > (define.WIDTH - 250):
+            if self.angle_dest < 90 or self.angle_dest > 270:
+                print (self.angle_dest)
+                self.angle_dest = random.randrange(90, 270)
+        elif self.y < 250 and self.angle_dest > 180:
+            self.angle_dest = random.randrange(0, 180)
+        elif self.y > define.HEIGHT - 250 and self.angle_dest < 180:
+            self.angle_dest = random.randrange(180, 360)
         else:
             anemey = self._get_nearest_em()
-            if anemey != None:
+            if anemey is not None:
                 self.angle_dest = self.select_direction(anemey)
 
     def _judge_pos(self, enemey):
@@ -252,28 +249,17 @@ class Snake(cocos.cocosnode.CocosNode):
                     aim_angle = theta - 180
                 else:
                     aim_angle = -theta
-                count1 = count2 = 0
                 if self._judge_inrange(angle_round, aim_angle):
                     relative_angle = int(aim_angle - angle_round[0])
-                    # print(relative_angle)
-                    # print(score)
-                    # count1 += 1
                     try:
                         angle_list[relative_angle] -= score
-                        # count2 += 1
                     except:
                         print(k, self.position, enemey.position, bd.position, relative_angle, aim_angle,
                               angle_round)
-                        # if count1!=count2:
-                        #     print(count1,count2)
                 else:
-                    # print(aim_angle, angle_round)
                     pass
-
-        # print(angle_list)
         score_array = np.array(angle_list, dtype=float)
         min_score = np.min(score_array)
-        # print (score_array)
         score_array = score_array + abs(min_score)
         # print (score_array)
         # score_sum = np.sum(score_array)
@@ -293,8 +279,6 @@ class Snake(cocos.cocosnode.CocosNode):
             # angle = np.random.choice(a=180, p=p_array)
         except:
             print(score_array)
-            # print(score_sum)
-            # print(p_array)
         # print (angle)
         return (angle_round[0] + angle + 360) % 360
 
@@ -421,6 +405,7 @@ class Snake(cocos.cocosnode.CocosNode):
         for b in other.body:
             dis = math.sqrt((b.x - self.x) ** 2 + (b.y - self.y) ** 2)
             if dis < 24:
+                # other.score += 10
                 self.crash()
                 return
 
@@ -433,13 +418,13 @@ class Snake(cocos.cocosnode.CocosNode):
             Snake.dead_num += 1
             self.is_dead = True
             self.unschedule(self.update)
-            self.unschedule(self.ai)
+            self.unschedule(self.my_ai)
             arena = self.parent
             for b in self.body:
-                dot = Dot(b.position, b.color)
-                arena.batch.add(dot)
-                arena.batch.add(dot)
-                arena.dots.append(dot)
+                # dot = Dot(b.position, b.color)
+                # arena.batch.add(dot)
+                # arena.batch.add(dot)
+                # arena.dots.append(dot)
                 arena.batch.remove(b)
 
             arena.remove(self)
